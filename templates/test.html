@@ -1,0 +1,19 @@
+{% extends "main.html" %}
+{% block content %}
+
+      <div class="options-box">
+        <h1>Neighborhood Map</h1>
+        <div>
+          <input id="show-listings" type="button" value="Show Listings">
+          <input id="hide-listings" type="button" value="Hide Listings">
+          <hr>
+          <p><input data-bind="value: loc" placeholder="enter location"/></p>
+          <p>Location: <strong data-bind="text: loc"></strong></p>
+          <ul class="folders" data-bind="foreach: locs">
+            <li data-bind="text: title"></li>
+          </ul>
+        </div>
+      </div>
+      <div id="map"></div>
+
+{% endblock %}
