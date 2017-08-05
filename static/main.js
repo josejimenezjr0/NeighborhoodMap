@@ -173,30 +173,55 @@ $(function() {
     var AppViewModel = {
         filteredLocs: ko.observableArray(gmapsLocs),
 
-        filterResult: ko.observableArray(gmapsLocs),
+        // filterResult: ko.observableArray(gmapsLocs),
         
         loc: ko.observable(""),
 
         filtered: function() {
-            let filter = AppViewModel.loc().toLowerCase();
+            let filter = AppViewModel.loc().replace(/\s/g, "").toLowerCase();
             if (!filter) {
                 return AppViewModel.filteredLocs();
             }
             else {
-                AppViewModel.titleSplits().forEach(function(titleSplitObj) {
-                    titleSplitObj.words.forEach(function(eachWord) {
-                        let eachWordLC = eachWord.toLowerCase();
-                        if (eachWordLC.indexOf(filter) >=0 ) { 
-                            AppViewModel.filteredLocs().forEach(function(mapLoc) {
-                                if (mapLoc.title == titleSplitObj.name) {
-                                    AppViewModel.filterResult.push(mapLoc);
-                                }
-                            });
+                let result = [];
+                let found = false;
+                AppViewModel.titleSplits().forEach(function(titleSplitObj) { //forloop
+                    if (found) {
+                        console.log('skipped this shit');
+                        found = false;
+                        return false;
+                    }
+                    console.log('result: ', result);
+                    titleSplitObj.words.forEach(function(eachWord) { //forloop
+                        if (found) {
+                            console.log('skipped this shit 2');
+                            return false;
                         }
-                        else {
+                        let eachWordLC = eachWord.toLowerCase();
+                        console.log('eachWordLC: ', eachWordLC);
+                        console.log('filter: ', filter);
+                        console.log('eachWordLC.indexOf(filter): ', eachWordLC.indexOf(filter));
+                        if (eachWordLC.indexOf(filter) >=0 ) { 
+                            AppViewModel.filteredLocs().forEach(function(mapLoc) { //forloop
+                                if (found) {
+                                    console.log('skipped this shit 3');
+                                    return false;
+                                }
+                                console.log('mapLoc.title: ', mapLoc.title);
+                                console.log('titleSplitObj.name: ', titleSplitObj.name);
+
+                                if (mapLoc.title == titleSplitObj.name) {
+                                    found = true;
+                                    console.log("I entered and I'm about to push", mapLoc);
+                                    result.push(mapLoc);
+                                    // AppViewModel.filterResult.push(mapLoc);
+                                }
+                                
+                            });
                         }
                     });
                 });
+                AppViewModel.filteredLocs(result);
             }
         },
 

@@ -7,14 +7,14 @@
           <input id="show-listings" type="button" value="Show Listings">
           <input id="hide-listings" type="button" value="Hide Listings">
           <hr>
-          <p><input data-bind="value: loc, valueUpdate: 'keyup'" placeholder="enter location"/></p>
+          <p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
           <p>Location: <strong data-bind="text: loc"></strong></p>
           <ul class="folders" data-bind="foreach: filteredLocs">
             <li data-bind="text: title"></li>
           </ul>
-           <ul class="folders" data-bind="foreach: filterResult">
+           <!-- <ul class="folders" data-bind="foreach: filterResult">
             <li data-bind="text: title"></li>
-          </ul> 
+          </ul>  -->
         </div>
       </div>
       <div id="map"></div>
