@@ -2,6 +2,7 @@ $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
     var map;
     var markers = [];
+    var largeInfowindow
 
     window.initMap = function () {
         // Constructor creates a new map - only center and zoom are required.
@@ -10,7 +11,7 @@ $(function() {
         zoom: 13,
         });
 
-        var largeInfowindow = new google.maps.InfoWindow();
+        largeInfowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
 
         // Style the markers a bit. This will be our listing marker icon.
@@ -136,17 +137,16 @@ $(function() {
                 }); 
             });
             AppViewModel.filteredLocs(filteredResult);
+        },
+
+        showInfo: function(value) {
+            populateInfoWindow(markers[this.id], largeInfoWindow)
         }
     };
+
+    var locations = gmapsLocs;
 
     AppViewModel.loc.subscribe(AppViewModel.filtered);
 
     ko.applyBindings(AppViewModel);
-
-    var locations = AppViewModel.filteredLocs();
-
-    function bindPopulateInfoWindow() {
-        populateInfoWindow(markers[id], largeInfoWindow);
-    }
-
 });
