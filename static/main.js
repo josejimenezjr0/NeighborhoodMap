@@ -1,17 +1,7 @@
 $(function() {
-
-    /////////////////////////////////////////////////
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
-    /////////////////////////////////////////////////
-
     var map;
-
-    // Create a new blank array for all the listing markers.
     var markers = [];
-
-    // Create placemarkers array to use in multiple functions to have control
-    // over the number of places that show.
-    var placeMarkers = [];
 
     window.initMap = function () {
         // Constructor creates a new map - only center and zoom are required.
@@ -21,6 +11,7 @@ $(function() {
         });
 
         var largeInfowindow = new google.maps.InfoWindow();
+        var bounds = new google.maps.LatLngBounds();
 
         // Style the markers a bit. This will be our listing marker icon.
         var defaultIcon = makeMarkerIcon('0091ff');
@@ -56,17 +47,20 @@ $(function() {
             marker.addListener('mouseout', function() {
                 this.setIcon(defaultIcon);
             });
+
+            marker.setMap(map);
+            bounds.extend(marker.position);
         }
+
+        map.fitBounds(bounds);
         
-        document.getElementById('show-listings').addEventListener('click', showListings);
-        document.getElementById('hide-listings').addEventListener('click', function() {
-            hideMarkers(markers);
-        });
+        // document.getElementById('show-listings').addEventListener('click', showListings);
+        // document.getElementById('hide-listings').addEventListener('click', function() {
+        //     hideMarkers(markers);
+        // });
     }
 
-    // This function populates the infowindow when the marker is clicked. We'll only allow
-    // one infowindow which will open at the marker that is clicked, and populate based
-    // on that markers position.
+    // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
@@ -82,27 +76,14 @@ $(function() {
         }
     }
 
-    // This function will loop through the markers array and display them all.
-    function showListings() {
-        var bounds = new google.maps.LatLngBounds();
-        // Extend the boundaries of the map for each marker and display the marker
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(map);
-            bounds.extend(markers[i].position);
-        }
-        map.fitBounds(bounds);
-    }
-
     // This function will loop through the listings and hide them all.
-    function hideMarkers(markers) {
+    function hideMarkers() {
         for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
+            markers[i].setVisible(false);
         }
     }
 
     // This function takes in a COLOR, and then creates a new marker
-    // icon of that color. The icon will be 21 px wide by 34 high, have an origin
-    // of 0, 0 and be anchored at 10, 34).
     function makeMarkerIcon(markerColor) {
         var markerImage = new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
@@ -114,52 +95,7 @@ $(function() {
         return markerImage;
     }
 
-    // This function creates markers for each place found in either places search.
-    function createMarkersForPlaces(places) {
-        var bounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < places.length; i++) {
-            var place = places[i];
-            var icon = {
-                url: place.icon,
-                size: new google.maps.Size(35, 35),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(15, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
-            // Create a marker for each place.
-            var marker = new google.maps.Marker({
-                map: map,
-                icon: icon,
-                title: place.name,
-                position: place.geometry.location,
-                id: place.place_id
-            });
-            // Create a single infowindow to be used with the place details information
-            // so that only one is open at once.
-            var placeInfoWindow = new google.maps.InfoWindow();
-            // If a marker is clicked, do a place details search on it in the next function.
-            marker.addListener('click', function() {
-                if (placeInfoWindow.marker == this) {
-                    console.log("This infowindow already is on this marker!");
-                } 
-                else {
-                    getPlacesDetails(this, placeInfoWindow);
-                }
-            });
-            placeMarkers.push(marker);
-            if (place.geometry.viewport) {
-                // Only geocodes have viewport.
-                bounds.union(place.geometry.viewport);
-            } 
-            else {
-                bounds.extend(place.geometry.location);
-            }
-        }
-        map.fitBounds(bounds);
-    }
-    ////////////////////////////////////////////////////////
     /////   END OF MODIFIED CODE FROM UDACITY COURSE   /////
-    ////////////////////////////////////////////////////////
 
     const gmapsLocs = [
         {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}, skipFilter: false},
@@ -172,75 +108,45 @@ $(function() {
 
     var AppViewModel = {
         filteredLocs: ko.observableArray(gmapsLocs),
-
-        // filterResult: ko.observableArray(gmapsLocs),
         
         loc: ko.observable(""),
 
+        number: ko.observable(0),
+
         filtered: function() {
-            let filter = AppViewModel.loc().replace(/\s/g, "").toLowerCase();
-            if (!filter) {
-                return AppViewModel.filteredLocs();
-            }
-            else {
-                let result = [];
-                let found = false;
-                AppViewModel.titleSplits().forEach(function(titleSplitObj) { //forloop
-                    if (found) {
-                        console.log('skipped this shit');
-                        found = false;
+            let filteredResult = [];
+            let found = false;
+            let filter = AppViewModel.loc().toLowerCase();
+            hideMarkers();
+            gmapsLocs.forEach(function(mapLoc, index) { //forloop
+                found = false;
+                words = mapLoc.title.toLowerCase().split(' ');
+                words.forEach(function(match) { //forloop
+                    AppViewModel.number(AppViewModel.number() + 1);
+                    if (found) { 
+                        found = true;
                         return false;
                     }
-                    console.log('result: ', result);
-                    titleSplitObj.words.forEach(function(eachWord) { //forloop
-                        if (found) {
-                            console.log('skipped this shit 2');
-                            return false;
-                        }
-                        let eachWordLC = eachWord.toLowerCase();
-                        console.log('eachWordLC: ', eachWordLC);
-                        console.log('filter: ', filter);
-                        console.log('eachWordLC.indexOf(filter): ', eachWordLC.indexOf(filter));
-                        if (eachWordLC.indexOf(filter) >=0 ) { 
-                            AppViewModel.filteredLocs().forEach(function(mapLoc) { //forloop
-                                if (found) {
-                                    console.log('skipped this shit 3');
-                                    return false;
-                                }
-                                console.log('mapLoc.title: ', mapLoc.title);
-                                console.log('titleSplitObj.name: ', titleSplitObj.name);
-
-                                if (mapLoc.title == titleSplitObj.name) {
-                                    found = true;
-                                    console.log("I entered and I'm about to push", mapLoc);
-                                    result.push(mapLoc);
-                                    // AppViewModel.filterResult.push(mapLoc);
-                                }
-                                
-                            });
-                        }
-                    });
-                });
-                AppViewModel.filteredLocs(result);
-            }
-        },
-
-    };
-
-    AppViewModel.titleSplits = ko.computed( function() {
-        let allTitles = [];
-        ko.utils.arrayForEach(AppViewModel.filteredLocs(), function(word) {
-            var titleObj = {name: word.title, words: word.title.split(" ")};
-            allTitles.push(titleObj);
+                    if (match.indexOf(filter) == 0) {
+                        markers[index].setVisible(true);
+                        filteredResult.push(mapLoc);
+                        found = true;
+                        return false;
+                    }
+                }); 
             });
-        return allTitles;
-        });
+            AppViewModel.filteredLocs(filteredResult);
+        }
+    };
 
     AppViewModel.loc.subscribe(AppViewModel.filtered);
 
     ko.applyBindings(AppViewModel);
 
-    var locations = gmapsLocs;
+    var locations = AppViewModel.filteredLocs();
 
+    function bindPopulateInfoWindow() {
+        populateInfoWindow(markers[id], largeInfoWindow);
+    }
 
 });
