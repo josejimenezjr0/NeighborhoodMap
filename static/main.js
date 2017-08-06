@@ -2,7 +2,7 @@ $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
     var map;
     var markers = [];
-    var largeInfowindow
+    var globalInfWin
 
     window.initMap = function () {
         // Constructor creates a new map - only center and zoom are required.
@@ -11,7 +11,9 @@ $(function() {
         zoom: 13,
         });
 
-        largeInfowindow = new google.maps.InfoWindow();
+        var largeInfowindow = new google.maps.InfoWindow();
+        globalInfWin = largeInfowindow;
+        
         var bounds = new google.maps.LatLngBounds();
 
         // Style the markers a bit. This will be our listing marker icon.
@@ -63,6 +65,8 @@ $(function() {
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
+        console.log('infowindow: ', infowindow);
+
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
             // Clear the infowindow content to give the streetview time to load.
@@ -139,8 +143,14 @@ $(function() {
             AppViewModel.filteredLocs(filteredResult);
         },
 
-        showInfo: function(value) {
-            populateInfoWindow(markers[this.id], largeInfoWindow)
+        showInfo: function(value, infWin) {
+            markers.forEach(function(mark) {
+                if(mark.title == value.title) {
+                    console.log('mark.title: ', mark.title);
+                    console.log('value.title: ', value.title);
+                    populateInfoWindow(mark, globalInfWin)
+                }
+            });
         }
     };
 
