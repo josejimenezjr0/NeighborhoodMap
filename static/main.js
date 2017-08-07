@@ -3,8 +3,10 @@ $(function() {
     var map;
     var markers = [];
     var globalInfWin
+    let postal;
 
     window.initMap = function () {
+        
         // Constructor creates a new map - only center and zoom are required.
         map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 40.7413549, lng: -73.9980244},
@@ -27,6 +29,9 @@ $(function() {
         for (var i = 0; i < locations.length; i++) {
             // Get the position from the location array.
             var position = locations[i].location;
+
+            
+
             var title = locations[i].title;
             // Create a marker per location, and put into markers array.
             var marker = new google.maps.Marker({
@@ -34,9 +39,11 @@ $(function() {
                 title: title,
                 animation: google.maps.Animation.DROP,
                 icon: defaultIcon,
-                id: i
+                id: i,
+                // postal: postal
             });
             // Push the marker to our array of markers.
+            
             markers.push(marker);
             // Create an onclick event to open the large infowindow at each marker.
             marker.addListener('click', function() {
@@ -54,32 +61,63 @@ $(function() {
             marker.setMap(map);
             bounds.extend(marker.position);
         }
-        // console.log('marker: ', marker);
+        // 
         map.fitBounds(bounds);
+
+        
+        setPostal(markers);
+
     }
+
+    
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
-        let lat = marker.getPosition().lat();
-        let lng = marker.getPosition().lng();
+        
         let coordinates = marker.getPosition();
         map.panTo(coordinates);
+
+        // let lat = marker.getPosition().lat();
+        // let lng = marker.getPosition().lng();
+        // let coordinates = marker.getPosition();
+        // let postal;
+        // map.panTo(coordinates);
         
-        let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
-        url += lat;
-        url += ',';
-        url += lng;
-        url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA'
-        $.ajax({
-            url : url,
-            dataType: 'json',
-            success : function(data) {
-                console.log('data: ', data);
-            },
-            error: function(request,error) {
-                alert("Request: " + JSON.stringify(request));
-            }
-        });
+        // let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
+        // url += lat;
+        // url += ',';
+        // url += lng;
+        // url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA&result_type=postal_code'
+        // $.ajax({
+        //     url : url,
+        //     dataType: 'json',
+        //     success : function(data) {
+        //         postal = data.results[0].address_components[0].short_name;
+        //         
+        //     },
+        //     error: function(request,error) {
+        //         alert("Request: " + JSON.stringify(request));
+        //     }
+        // });
+
+         /////***** PETFINDER API CALL *****/////
+
+        let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
+        urlPet += marker.postal;
+        
+        // $.ajax({
+        //     url : urlPet,
+        //     dataType: 'json',
+        //     success : function(data) {
+
+        //     },
+        //     error : function(request,error)
+        //     {
+        //         alert("Request: "+JSON.stringify(request));
+        //     }
+        // });
+
+        /////***** END PETFINDER API CALL *****/////
 
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
@@ -116,6 +154,36 @@ $(function() {
     }
 
     /////   END OF MODIFIED CODE FROM UDACITY COURSE   /////
+
+    function setPostal(markerArray) {
+        
+        markerArray.forEach(function(marker) {
+            
+            let lat = marker.getPosition().lat();
+            
+            let lng = marker.getPosition().lng();
+            
+            
+            let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
+            url += lat;
+            url += ',';
+            url += lng;
+            url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA&result_type=postal_code'
+
+            $.ajax({
+                url : url,
+                dataType: 'json',
+                success : function(data){
+                    marker.postal = data.results[0].address_components[0].short_name;
+                    
+                },
+                error: function(request,error) {
+                    alert("Request: " + JSON.stringify(request));
+                }
+            });
+        })
+        console.log(markers);
+    }
 
     const gmapsLocs = [
         {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}, skipFilter: false},
@@ -159,6 +227,7 @@ $(function() {
         },
 
         showInfo: function(value, infWin) {
+            
             markers.forEach(function(mark) {
                 if(mark.title == value.title) {
                     populateInfoWindow(mark, globalInfWin)
