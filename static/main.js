@@ -54,23 +54,37 @@ $(function() {
             marker.setMap(map);
             bounds.extend(marker.position);
         }
-
+        // console.log('marker: ', marker);
         map.fitBounds(bounds);
-        
-        // document.getElementById('show-listings').addEventListener('click', showListings);
-        // document.getElementById('hide-listings').addEventListener('click', function() {
-        //     hideMarkers(markers);
-        // });
     }
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
-        console.log('infowindow: ', infowindow);
+        let lat = marker.getPosition().lat();
+        let lng = marker.getPosition().lng();
+        let coordinates = marker.getPosition();
+        map.panTo(coordinates);
+        
+        let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
+        url += lat;
+        url += ',';
+        url += lng;
+        url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA'
+        $.ajax({
+            url : url,
+            dataType: 'json',
+            success : function(data) {
+                console.log('data: ', data);
+            },
+            error: function(request,error) {
+                alert("Request: " + JSON.stringify(request));
+            }
+        });
 
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
             // Clear the infowindow content to give the streetview time to load.
-            infowindow.setContent('');
+            infowindow.setContent('<div class="info">' + marker.title + '</div>');
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
@@ -79,6 +93,7 @@ $(function() {
             // Open the infowindow on the correct marker.
             infowindow.open(map, marker);
         }
+        
     }
 
     // This function will loop through the listings and hide them all.
@@ -123,10 +138,10 @@ $(function() {
             let found = false;
             let filter = AppViewModel.loc().toLowerCase();
             hideMarkers();
-            gmapsLocs.forEach(function(mapLoc, index) { //forloop
+            gmapsLocs.forEach(function(mapLoc, index) {
                 found = false;
                 words = mapLoc.title.toLowerCase().split(' ');
-                words.forEach(function(match) { //forloop
+                words.forEach(function(match) {
                     AppViewModel.number(AppViewModel.number() + 1);
                     if (found) { 
                         found = true;
@@ -146,8 +161,6 @@ $(function() {
         showInfo: function(value, infWin) {
             markers.forEach(function(mark) {
                 if(mark.title == value.title) {
-                    console.log('mark.title: ', mark.title);
-                    console.log('value.title: ', value.title);
                     populateInfoWindow(mark, globalInfWin)
                 }
             });

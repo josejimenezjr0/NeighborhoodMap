@@ -55,3 +55,8 @@ width: 340px;
 .text {
 font-size: 12px;
 }
+
+.info {
+    width: 200px;
+    height: 200px;
+}
