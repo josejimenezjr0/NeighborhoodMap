@@ -11,6 +11,7 @@ $(function() {
         map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 40.7413549, lng: -73.9980244},
         zoom: 13,
+        mapTypeControl: false
         });
 
         var largeInfowindow = new google.maps.InfoWindow();
@@ -40,7 +41,6 @@ $(function() {
                 animation: google.maps.Animation.DROP,
                 icon: defaultIcon,
                 id: i,
-                // postal: postal
             });
             // Push the marker to our array of markers.
             
@@ -73,56 +73,37 @@ $(function() {
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
-        
-        let coordinates = marker.getPosition();
-        map.panTo(coordinates);
-
-        // let lat = marker.getPosition().lat();
-        // let lng = marker.getPosition().lng();
-        // let coordinates = marker.getPosition();
-        // let postal;
-        // map.panTo(coordinates);
-        
-        // let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
-        // url += lat;
-        // url += ',';
-        // url += lng;
-        // url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA&result_type=postal_code'
-        // $.ajax({
-        //     url : url,
-        //     dataType: 'json',
-        //     success : function(data) {
-        //         postal = data.results[0].address_components[0].short_name;
-        //         
-        //     },
-        //     error: function(request,error) {
-        //         alert("Request: " + JSON.stringify(request));
-        //     }
-        // });
-
-         /////***** PETFINDER API CALL *****/////
-
-        let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
-        urlPet += marker.postal;
-        
-        // $.ajax({
-        //     url : urlPet,
-        //     dataType: 'json',
-        //     success : function(data) {
-
-        //     },
-        //     error : function(request,error)
-        //     {
-        //         alert("Request: "+JSON.stringify(request));
-        //     }
-        // });
-
-        /////***** END PETFINDER API CALL *****/////
-
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
-            // Clear the infowindow content to give the streetview time to load.
-            infowindow.setContent('<div class="info">' + marker.title + '</div>');
+            let self = this;
+            let coordinates = marker.getPosition();
+            map.panTo(coordinates);
+
+            let petPic;
+
+            /////***** PETFINDER API CALL *****/////
+
+            let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
+            urlPet += marker.postal;
+            
+            $.ajax({
+                url : urlPet,
+                dataType: 'jsonp',
+                success : function(data) {
+                    console.log('data: ', data);
+                    setPetInfo(self, data);
+                },
+                error : function(request,error)
+                {
+                    alert("Request: "+JSON.stringify(request));
+                }
+            });
+
+            /////***** END PETFINDER API CALL *****/////
+
+            let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
+            content += '</h4></div></div>';
+            infowindow.setContent(content);
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
@@ -154,6 +135,20 @@ $(function() {
     }
 
     /////   END OF MODIFIED CODE FROM UDACITY COURSE   /////
+
+    function setPetInfo(value, petInfo) {
+        let petName = petInfo.petfinder.pet.name.$t;
+        let petPic = petInfo.petfinder.pet.media.photos.photo[2].$t;
+        let petID = petInfo.petfinder.pet.id.$t;
+        let petLink = 'https://www.petfinder.com/petdetail/' + petID
+        let htmlContent = '<p class="pet-name">' + petName + '</p>'
+        htmlContent += '<a href="' + petLink + '" class="pet-link" target="_blank">More Info!</a>' 
+        htmlContent += '<img class="aligner-vert pet-pic" src="';
+        htmlContent += petPic
+        htmlContent += ' "height="200" width="200">';
+        console.log('htmlContent: ', htmlContent);
+        $('.pet-cont').append(htmlContent);
+    }
 
     function setPostal(markerArray) {
         
