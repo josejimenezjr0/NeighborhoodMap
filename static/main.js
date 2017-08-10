@@ -4,6 +4,8 @@ $(function() {
     var markers = [];
     var globalInfWin
     let postal;
+    let error = false;
+    let tester = 0;
 
     window.initMap = function () {
         
@@ -74,7 +76,7 @@ $(function() {
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
-        if (infowindow.marker != marker) {
+        if (infowindow.marker != marker && !error) {
             let self = this;
             let coordinates = marker.getPosition();
             map.panTo(coordinates);
@@ -86,18 +88,49 @@ $(function() {
             let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
             urlPet += marker.postal;
             
-            $.ajax({
-                url : urlPet,
-                dataType: 'jsonp',
-                success : function(data) {
-                    console.log('data: ', data);
-                    setPetInfo(self, data);
-                },
-                error : function(request,error)
-                {
-                    alert("Request: "+JSON.stringify(request));
-                }
-            });
+            // $.ajax({
+            //     url : urlPet,
+            //     dataType: 'jsonp',
+            //     success : function(data) {
+            //         setPetInfo(self, data, marker);
+            //         
+            //     },
+            //     error : function(request,error)
+            //     {
+            //         alert("Request: "+JSON.stringify(request));
+            //     }
+            // });
+
+            getPet(urlPet).then(function(response) {
+                tester++;
+                return checkPhoto(response);
+            }).catch (function(error) {
+                console.log('entered catch, trying again');
+                // tester++;
+                return getPet(urlPet).then(function(response){
+                    return checkPhoto(response);
+                })
+            }).then(function(data) {
+                setPetInfo(self, data, marker);
+            }, function(error) {
+                console.log('second failure, done');
+            }).then(function() {
+                console.log('last thing, remove spinner');
+            })
+
+            // getPet(urlPet).then(function(response) {
+            //     
+            //     return checkPhoto(response);
+            // }).catch (function(error) {
+            //     
+            //     return getPetRecovery(urlPet, self, marker);
+            // }).then(function(data) {
+            //     setPetInfo(self, data, marker);
+            // }, function(error) {
+            //     
+            // }).then(function() {
+            //     
+            // })
 
             /////***** END PETFINDER API CALL *****/////
 
@@ -136,7 +169,7 @@ $(function() {
 
     /////   END OF MODIFIED CODE FROM UDACITY COURSE   /////
 
-    function setPetInfo(value, petInfo) {
+    function setPetInfo(value, petInfo, marker) {
         let petName = petInfo.petfinder.pet.name.$t;
         let petPic = petInfo.petfinder.pet.media.photos.photo[2].$t;
         let petID = petInfo.petfinder.pet.id.$t;
@@ -146,9 +179,73 @@ $(function() {
         htmlContent += '<img class="aligner-vert pet-pic" src="';
         htmlContent += petPic
         htmlContent += ' "height="200" width="200">';
-        console.log('htmlContent: ', htmlContent);
         $('.pet-cont').append(htmlContent);
     }
+
+    function getPet(url) {
+        console.log('getPet');
+        return new Promise(function(resolve, reject) {
+            let data = ($.ajax({
+                    url : url,
+                    dataType: 'jsonp',
+                    success: function(response) {
+                        resolve(response)
+                    },
+                    error : function(request, error) {
+                        reject(Error(error))
+                    }
+            }))
+        })
+    }
+
+    function checkPhoto(response) {
+        console.log('tester: ', tester);
+        return new Promise(function(resolve, reject) {
+            if (response.petfinder.pet.media.photos.photo[2].$t && (!(tester % 3 == 0))) {
+                
+                
+                resolve(response);
+            }
+            else {
+                reject(Error('No Photo'))
+            }
+        })
+    }
+
+    // function getPetRecovery(url, value, locMarker) {
+    //     tester++
+    //     
+    //     
+    //     return new Promise(function(resolve, reject) {
+    //         getPet(urlPet).then(function(response) {
+    //             
+    //             return checkPhoto(response);
+    //         })
+    //     })
+        //  getPet(url).then(function(response) {
+        //     
+        //     return checkPhoto(response);
+        // }).then(function(data) {
+        //     setPetInfo(value, data, locMarker);
+        //     passed = true;
+        // }, function(error) {
+        //     
+        //     return 
+        // })
+    // }
+
+    //  $.ajax({
+    //     url : urlPet,
+    //     dataType: 'jsonp',
+    //     success : function(data) {
+    //         setPetInfo(self, data, marker);
+    //         
+    //     },
+    //     error : function(request,error)
+    //     {
+    //         alert("Request: "+JSON.stringify(request));
+    //     }
+    // });
 
     function setPostal(markerArray) {
         
@@ -177,7 +274,6 @@ $(function() {
                 }
             });
         })
-        console.log(markers);
     }
 
     const gmapsLocs = [
@@ -225,7 +321,7 @@ $(function() {
             
             markers.forEach(function(mark) {
                 if(mark.title == value.title) {
-                    populateInfoWindow(mark, globalInfWin)
+                    populateInfoWindow(mark, globalInfWin);
                 }
             });
         }
