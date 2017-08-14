@@ -5,7 +5,6 @@ $(function() {
     var globalInfWin
     let postal;
     let error = false;
-    let tester = 0;
 
     window.initMap = function () {
         
@@ -32,9 +31,6 @@ $(function() {
         for (var i = 0; i < locations.length; i++) {
             // Get the position from the location array.
             var position = locations[i].location;
-
-            
-
             var title = locations[i].title;
             // Create a marker per location, and put into markers array.
             var marker = new google.maps.Marker({
@@ -71,72 +67,38 @@ $(function() {
 
     }
 
-    
-
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker && !error) {
             let self = this;
+            let petPic;
+
             let coordinates = marker.getPosition();
             map.panTo(coordinates);
 
-            let petPic;
-
-            /////***** PETFINDER API CALL *****/////
-
             let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
             urlPet += marker.postal;
-            
-            // $.ajax({
-            //     url : urlPet,
-            //     dataType: 'jsonp',
-            //     success : function(data) {
-            //         setPetInfo(self, data, marker);
-            //         
-            //     },
-            //     error : function(request,error)
-            //     {
-            //         alert("Request: "+JSON.stringify(request));
-            //     }
-            // });
+
+            let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
+            content += '</h4><div class="spinner"><img src="../static/spinner.gif"></div></div></div>';
+            infowindow.setContent(content);
 
             getPet(urlPet).then(function(response) {
-                tester++;
                 return checkPhoto(response);
             }).catch (function(error) {
-                console.log('entered catch, trying again');
-                // tester++;
                 return getPet(urlPet).then(function(response){
                     return checkPhoto(response);
                 })
             }).then(function(data) {
                 setPetInfo(self, data, marker);
             }, function(error) {
-                console.log('second failure, done');
+                let errorContent = '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>'
+                $('.pet-cont').append(errorContent);
             }).then(function() {
-                console.log('last thing, remove spinner');
+                $('.spinner').remove();
             })
 
-            // getPet(urlPet).then(function(response) {
-            //     
-            //     return checkPhoto(response);
-            // }).catch (function(error) {
-            //     
-            //     return getPetRecovery(urlPet, self, marker);
-            // }).then(function(data) {
-            //     setPetInfo(self, data, marker);
-            // }, function(error) {
-            //     
-            // }).then(function() {
-            //     
-            // })
-
-            /////***** END PETFINDER API CALL *****/////
-
-            let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
-            content += '</h4></div></div>';
-            infowindow.setContent(content);
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
@@ -183,7 +145,6 @@ $(function() {
     }
 
     function getPet(url) {
-        console.log('getPet');
         return new Promise(function(resolve, reject) {
             let data = ($.ajax({
                     url : url,
@@ -191,17 +152,15 @@ $(function() {
                     success: function(response) {
                         resolve(response)
                     },
-                    error : function(request, error) {
-                        reject(Error(error))
+                    error : function(request, status, error) {
                     }
             }))
         })
     }
 
     function checkPhoto(response) {
-        console.log('tester: ', tester);
         return new Promise(function(resolve, reject) {
-            if (response.petfinder.pet.media.photos.photo[2].$t && (!(tester % 3 == 0))) {
+            if (response.petfinder.pet.media.photos.photo[2].$t) {
                 
                 
                 resolve(response);
@@ -211,41 +170,6 @@ $(function() {
             }
         })
     }
-
-    // function getPetRecovery(url, value, locMarker) {
-    //     tester++
-    //     
-    //     
-    //     return new Promise(function(resolve, reject) {
-    //         getPet(urlPet).then(function(response) {
-    //             
-    //             return checkPhoto(response);
-    //         })
-    //     })
-        //  getPet(url).then(function(response) {
-        //     
-        //     return checkPhoto(response);
-        // }).then(function(data) {
-        //     setPetInfo(value, data, locMarker);
-        //     passed = true;
-        // }, function(error) {
-        //     
-        //     return 
-        // })
-    // }
-
-    //  $.ajax({
-    //     url : urlPet,
-    //     dataType: 'jsonp',
-    //     success : function(data) {
-    //         setPetInfo(self, data, marker);
-    //         
-    //     },
-    //     error : function(request,error)
-    //     {
-    //         alert("Request: "+JSON.stringify(request));
-    //     }
-    // });
 
     function setPostal(markerArray) {
         
