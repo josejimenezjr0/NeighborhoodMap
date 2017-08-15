@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">   
+		<link rel="stylesheet" type="text/css" href="./static/styles.css">
+        
+	</head>
+	<body>
+		<div class="container">
+			<div id="main" class="options-box">
+				<h1>Neighborhood Map</h1>
+				<div>
+					<hr>
+					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
+					<p>Location: <strong data-bind="text: loc"></strong></p>
+					<input data-bind="click: showAll" type="button" value="Show All">
+					<ul class="folders" data-bind="foreach: filteredLocs">
+						<li data-bind="text: title, click: $root.showInfo"></li> 
+					</ul>
+				</div>
+			</div>
+			<div id="map"></div>
+        </div>
+		
+        <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
+		<script type="text/javascript" src="./static/main.js"></script>
+		<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap"></script>
+	</body>
+</html>

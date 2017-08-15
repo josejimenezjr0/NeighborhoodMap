@@ -93,7 +93,7 @@ $(function() {
         controlText.style.lineHeight = '38px';
         controlText.style.paddingLeft = '5px';
         controlText.style.paddingRight = '5px';
-        controlText.innerHTML = '<img src="../static/hamburger.png">';
+        controlText.innerHTML = '<img src="./static/hamburger.png">';
         controlUI.appendChild(controlText);
 
         // Setup the click event listeners: simply set the map to Chicago.
@@ -131,7 +131,7 @@ $(function() {
             urlPet += marker.postal;
 
             let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
-            content += '</h4><div class="spinner"><img src="../static/spinner.gif"></div></div></div>';
+            content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
             infowindow.setContent(content);
 
             getPet(urlPet).then(function(response) {
@@ -264,8 +264,6 @@ $(function() {
         
         loc: ko.observable(""),
 
-        // number: ko.observable(0),
-
         filtered: function() {
             let filteredResult = [];
             let found = false;
@@ -275,7 +273,6 @@ $(function() {
                 found = false;
                 words = mapLoc.title.toLowerCase().split(' ');
                 words.forEach(function(match) {
-                    AppViewModel.number(AppViewModel.number() + 1);
                     if (found) { 
                         found = true;
                         return false;
