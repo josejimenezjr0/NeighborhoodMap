@@ -103,13 +103,18 @@ $(function() {
 
     }
 
-    function showHide(bounds) {
+    function showHide() {
         let menudiv = document.getElementById('main');
         if (menudiv.style.display === 'none') {
             menudiv.style.display = 'block';
+            menudiv.style.width = '340px';
+            document.getElementById('map').style.left = '362px';
         } else {
             menudiv.style.display = 'none';
+            menudiv.style.width = '0px';
+            document.getElementById('map').style.left = '0px';
         }
+        google.maps.event.trigger(map,'resize')
     }
 
     // This function populates the infowindow when the marker is clicked.
