@@ -12,14 +12,18 @@
 				<h1>Neighborhood Map</h1>
 				<div>
 					<hr>
+					<!-- knockoutjs binding for the filter -->
 					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
-					<p>Location: <strong data-bind="text: loc"></strong></p>
+					<!-- knockoutjs binding for show all button -->
 					<input data-bind="click: showAll" type="button" value="Show All">
+					<!-- looping through with knockoutjs to display dynamic list of locations -->
 					<ul class="folders" data-bind="foreach: filteredLocs">
+						<!-- knockoutjs binding for the population of info window if name list is clicked instead of marker -->
 						<li data-bind="text: title, click: $root.showInfo"></li> 
 					</ul>
 				</div>
 			</div>
+			<!-- Google API required div -->
 			<div id="map"></div>
         </div>
 		

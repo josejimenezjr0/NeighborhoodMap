@@ -2,9 +2,8 @@ $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
     var map;
     var markers = [];
-    var globalInfWin
-    let postal;
-    let error = false;
+    var globalInfWin //to pass into info windows
+    let postal; //Used for zipcode calls
 
     window.initMap = function () {
         
@@ -16,6 +15,7 @@ $(function() {
         });
 
         var largeInfowindow = new google.maps.InfoWindow();
+        //passing in new info window
         globalInfWin = largeInfowindow;
         
         var bounds = new google.maps.LatLngBounds();
@@ -27,7 +27,7 @@ $(function() {
         // mouses over the marker.
         var highlightedIcon = makeMarkerIcon('FFFF24');
 
-            // The following group uses the location array to create an array of markers on initialize.
+        // The following group uses the location array to create an array of markers on initialize.
         for (var i = 0; i < locations.length; i++) {
             // Get the position from the location array.
             var position = locations[i].location;
@@ -60,6 +60,7 @@ $(function() {
             bounds.extend(marker.position);
         }
 
+        //creating button for collapsing sidbar
         let centerControlDiv = document.createElement('div');
         let centerControl = new CenterControl(centerControlDiv, map);
 
@@ -72,6 +73,8 @@ $(function() {
 
     }
 
+    //the function that creates the look for the button
+    //modified code from Google maps API site
     function CenterControl(controlDiv, map) {
         // Set CSS for the control border.
         var controlUI = document.createElement('div');
@@ -103,6 +106,7 @@ $(function() {
 
     }
 
+    //adds the functionality to the hamburger icon button to add or remove the sidebar
     function showHide() {
         let menudiv = document.getElementById('main');
         if (menudiv.style.display === 'none') {
@@ -120,29 +124,36 @@ $(function() {
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
-        if (infowindow.marker != marker && !error) {
+        if (infowindow.marker != marker) {
             let self = this;
             let petPic;
 
             let coordinates = marker.getPosition();
             map.panTo(coordinates);
 
+            //set base url for zipcode referenced petfinder API call
             let urlPet = 'http://api.petfinder.com/pet.getRandom?key=3440c499899775fb6503e10b95f8405a&output=basic&format=json&location=';
             urlPet += marker.postal;
 
+            //set info window html/css
             let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
             content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
             infowindow.setContent(content);
 
+            //get petInfo through promise chains incase anything doesn't come through
             getPet(urlPet).then(function(response) {
                 return checkPhoto(response);
             }).catch (function(error) {
+                //fall back to a second attempt
                 return getPet(urlPet).then(function(response){
+                    //verify that the API call returned a pet with a photo
                     return checkPhoto(response);
                 })
             }).then(function(data) {
+                //if it's all good, set the info for the pet info window
                 setPetInfo(self, data, marker);
             }, function(error) {
+                //diplay an error if all the redundant calls fail
                 let errorContent = '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>'
                 $('.pet-cont').append(errorContent);
             }).then(function() {
@@ -181,6 +192,7 @@ $(function() {
 
     /////   END OF MODIFIED CODE FROM UDACITY COURSE   /////
 
+    //take in the API call data and ectract the pertinent info
     function setPetInfo(value, petInfo, marker) {
         let petName = petInfo.petfinder.pet.name.$t;
         let petPic = petInfo.petfinder.pet.media.photos.photo[2].$t;
@@ -194,6 +206,7 @@ $(function() {
         $('.pet-cont').append(htmlContent);
     }
 
+    //petfinder API call
     function getPet(url) {
         return new Promise(function(resolve, reject) {
             let data = ($.ajax({
@@ -203,11 +216,13 @@ $(function() {
                         resolve(response)
                     },
                     error : function(request, status, error) {
+                        reject(error)
                     }
             }))
         })
     }
 
+    //sometimes a pet returns without a photo, for this project, try again
     function checkPhoto(response) {
         return new Promise(function(resolve, reject) {
             if (response.petfinder.pet.media.photos.photo[2].$t) {
@@ -221,6 +236,7 @@ $(function() {
         })
     }
 
+    //retrive the zipcodea for the locations and set them in their marker data
     function setPostal(markerArray) {
         
         markerArray.forEach(function(marker) {
@@ -243,13 +259,14 @@ $(function() {
                     marker.postal = data.results[0].address_components[0].short_name;
                     
                 },
-                error: function(request,error) {
+                error: function(request, error) {
                     alert("Request: " + JSON.stringify(request));
                 }
             });
         })
     }
 
+    //static loaction info
     const gmapsLocs = [
         {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}, skipFilter: false},
         {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}, skipFilter: false},
@@ -259,11 +276,15 @@ $(function() {
         {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}, skipFilter: false}
         ];
 
+    //knockout view model
     var AppViewModel = {
+        //pass in the static content to an observable
         filteredLocs: ko.observableArray(gmapsLocs),
         
+        //text filter starts off blank
         loc: ko.observable(""),
 
+        //function to read text filter entries and update dynamically
         filtered: function() {
             let filteredResult = [];
             let found = false;
@@ -288,6 +309,7 @@ $(function() {
             AppViewModel.filteredLocs(filteredResult);
         },
 
+        //take in the global info window and run the function to populate
         showInfo: function(value, infWin) {
             
             markers.forEach(function(mark) {
@@ -297,23 +319,18 @@ $(function() {
             });
         },
 
+        //reset function to clear search/filter field
         showAll: function () {
             AppViewModel.loc('');
         },
-
-        showHide: function() {
-            if (AppViewModel.mainDiv() == true) {
-                AppViewModel.mainDiv(false);
-            }
-            else {
-                AppViewModel.mainDiv(true);
-            }
-        }
     };
 
+    //make static content available to the Google maps API
     var locations = gmapsLocs;
 
+    //bind the filter function to the loc observable input field 
     AppViewModel.loc.subscribe(AppViewModel.filtered);
 
+    //start up KnockoutJS
     ko.applyBindings(AppViewModel);
 });
