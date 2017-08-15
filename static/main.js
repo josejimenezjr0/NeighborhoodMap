@@ -1,8 +1,11 @@
+/* jshint browser: true */
+"use strict";
+
 $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
     var map;
     var markers = [];
-    var globalInfWin //to pass into info windows
+    var globalInfWin; //to pass into info windows
     let postal; //Used for zipcode calls
 
     window.initMap = function () {
@@ -71,7 +74,7 @@ $(function() {
         
         setPostal(markers);
 
-    }
+    };
 
     //the function that creates the look for the button
     //modified code from Google maps API site
@@ -118,7 +121,7 @@ $(function() {
             menudiv.style.width = '0px';
             document.getElementById('map').style.left = '0px';
         }
-        google.maps.event.trigger(map,'resize')
+        google.maps.event.trigger(map,'resize');
     }
 
     // This function populates the infowindow when the marker is clicked.
@@ -148,17 +151,17 @@ $(function() {
                 return getPet(urlPet).then(function(response){
                     //verify that the API call returned a pet with a photo
                     return checkPhoto(response);
-                })
+                });
             }).then(function(data) {
                 //if it's all good, set the info for the pet info window
                 setPetInfo(self, data, marker);
             }, function(error) {
                 //diplay an error if all the redundant calls fail
-                let errorContent = '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>'
+                let errorContent = '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>';
                 $('.pet-cont').append(errorContent);
             }).then(function() {
                 $('.spinner').remove();
-            })
+            });
 
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
@@ -197,11 +200,11 @@ $(function() {
         let petName = petInfo.petfinder.pet.name.$t;
         let petPic = petInfo.petfinder.pet.media.photos.photo[2].$t;
         let petID = petInfo.petfinder.pet.id.$t;
-        let petLink = 'https://www.petfinder.com/petdetail/' + petID
-        let htmlContent = '<p class="pet-name">' + petName + '</p>'
-        htmlContent += '<a href="' + petLink + '" class="pet-link" target="_blank">More Info!</a>' 
+        let petLink = 'https://www.petfinder.com/petdetail/' + petID;
+        let htmlContent = '<p class="pet-name">' + petName + '</p>';
+        htmlContent += '<a href="' + petLink + '" class="pet-link" target="_blank">More Info!</a>';
         htmlContent += '<img class="aligner-vert pet-pic" src="';
-        htmlContent += petPic
+        htmlContent += petPic;
         htmlContent += ' "height="200" width="200">';
         $('.pet-cont').append(htmlContent);
     }
@@ -213,13 +216,13 @@ $(function() {
                     url : url,
                     dataType: 'jsonp',
                     success: function(response) {
-                        resolve(response)
+                        resolve(response);
                     },
                     error : function(request, status, error) {
-                        reject(error)
+                        reject(error);
                     }
-            }))
-        })
+            }));
+        });
     }
 
     //sometimes a pet returns without a photo, for this project, try again
@@ -231,9 +234,9 @@ $(function() {
                 resolve(response);
             }
             else {
-                reject(Error('No Photo'))
+                reject(Error('No Photo'));
             }
-        })
+        });
     }
 
     //retrive the zipcodea for the locations and set them in their marker data
@@ -246,11 +249,11 @@ $(function() {
             let lng = marker.getPosition().lng();
             
             
-            let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='
+            let url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=';
             url += lat;
             url += ',';
             url += lng;
-            url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA&result_type=postal_code'
+            url += '&key=AIzaSyA0dTID9kEIw0w2LDUE444_M0Go7YM4apA&result_type=postal_code';
 
             $.ajax({
                 url : url,
@@ -260,10 +263,10 @@ $(function() {
                     
                 },
                 error: function(request, error) {
-                    alert("Request: " + JSON.stringify(request));
+                    window.alert("Request: " + JSON.stringify(request));
                 }
             });
-        })
+        });
     }
 
     //static loaction info
@@ -286,6 +289,7 @@ $(function() {
 
         //function to read text filter entries and update dynamically
         filtered: function() {
+            let words;
             let filteredResult = [];
             let found = false;
             let filter = AppViewModel.loc().toLowerCase();
@@ -298,7 +302,7 @@ $(function() {
                         found = true;
                         return false;
                     }
-                    if (match.indexOf(filter) == 0) {
+                    if (match.indexOf(filter) === 0) {
                         markers[index].setVisible(true);
                         filteredResult.push(mapLoc);
                         found = true;

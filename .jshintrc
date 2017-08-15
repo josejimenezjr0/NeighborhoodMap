@@ -1,0 +1,9 @@
+{
+    "globals": {
+        "esversion": 6,
+        "esnext": true,
+        "browser": true,
+        "$": false,
+        "ko": false
+    }
+}
