@@ -1,5 +1,4 @@
 /* jshint browser: true */
-"use strict";
 
 $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
@@ -43,21 +42,17 @@ $(function() {
                 icon: defaultIcon,
                 id: i,
             });
+
             // Push the marker to our array of markers.
-            
             markers.push(marker);
+            
             // Create an onclick event to open the large infowindow at each marker.
-            marker.addListener('click', function() {
-                populateInfoWindow(this, largeInfowindow);
-            });
+            clickHandler(marker, largeInfowindow);
+            
             // Two event listeners - one for mouseover, one for mouseout,
             // to change the colors back and forth.
-            marker.addListener('mouseover', function() {
-                this.setIcon(highlightedIcon);
-            });
-            marker.addListener('mouseout', function() {
-                this.setIcon(defaultIcon);
-            });
+            mouseOverHandler(marker, highlightedIcon);
+            mouseOutHandler(marker, defaultIcon);
 
             marker.setMap(map);
             bounds.extend(marker.position);
@@ -75,6 +70,24 @@ $(function() {
         setPostal(markers);
 
     };
+
+    function clickHandler(marker, infWin) {
+        marker.addListener('click', function() {
+            populateInfoWindow(this, infWin);
+        });
+    }
+
+    function mouseOverHandler(marker, highlightedIcon) {
+        marker.addListener('mouseover', function() {
+            this.setIcon(highlightedIcon);
+        });
+    }
+
+    function mouseOutHandler(marker, defaultIcon) {
+        marker.addListener('mouseout', function() {
+            this.setIcon(defaultIcon);
+        });
+    }
 
     //the function that creates the look for the button
     //modified code from Google maps API site
@@ -125,7 +138,7 @@ $(function() {
     }
 
     // This function populates the infowindow when the marker is clicked.
-    function populateInfoWindow(marker, infowindow) {
+    function populateInfoWindow(marker, infowindow) {     
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
             let self = this;
