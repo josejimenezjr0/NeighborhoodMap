@@ -5,6 +5,9 @@ $(function() {
     var map;
     var markers = [];
     var globalInfWin; //to pass into info windows
+    var globalBounds;
+    var globalDefaultIcon;
+    var globalSelectedIcon;
     let postal; //Used for zipcode calls
 
     window.initMap = function () {
@@ -24,10 +27,14 @@ $(function() {
 
         // Style the markers a bit. This will be our listing marker icon.
         var defaultIcon = makeMarkerIcon('0091ff');
+        globalDefaultIcon = defaultIcon;
 
         // Create a "highlighted location" marker color for when the user
         // mouses over the marker.
         var highlightedIcon = makeMarkerIcon('FFFF24');
+
+        var selectedIcon = makeMarkerIcon('FF0000');
+        globalSelectedIcon  = selectedIcon;
 
         // The following group uses the location array to create an array of markers on initialize.
         for (var i = 0; i < locations.length; i++) {
@@ -47,12 +54,12 @@ $(function() {
             markers.push(marker);
             
             // Create an onclick event to open the large infowindow at each marker.
-            clickHandler(marker, largeInfowindow);
+            clickHandler(marker, largeInfowindow, selectedIcon);
             
             // Two event listeners - one for mouseover, one for mouseout,
             // to change the colors back and forth.
-            mouseOverHandler(marker, highlightedIcon);
-            mouseOutHandler(marker, defaultIcon);
+            mouseOverHandler(marker, highlightedIcon, largeInfowindow);
+            mouseOutHandler(marker, defaultIcon, largeInfowindow);
 
             marker.setMap(map);
             bounds.extend(marker.position);
@@ -67,25 +74,36 @@ $(function() {
 
         map.fitBounds(bounds);
         
+
+        google.maps.event.addDomListener(window, 'resize', function() {
+            map.fitBounds(bounds);
+        });
+        
+        globalBounds = bounds;
+        
         setPostal(markers);
 
     };
 
-    function clickHandler(marker, infWin) {
+    function clickHandler(marker, infWin, selectedIcon) {
         marker.addListener('click', function() {
             populateInfoWindow(this, infWin);
         });
     }
 
-    function mouseOverHandler(marker, highlightedIcon) {
+    function mouseOverHandler(marker, highlightedIcon, infWin) {
         marker.addListener('mouseover', function() {
-            this.setIcon(highlightedIcon);
+            if (infWin.marker != marker) {
+                this.setIcon(highlightedIcon);
+            }
         });
     }
 
-    function mouseOutHandler(marker, defaultIcon) {
+    function mouseOutHandler(marker, defaultIcon, infWin) {
         marker.addListener('mouseout', function() {
-            this.setIcon(defaultIcon);
+            if (infWin.marker != marker) {
+                this.setIcon(defaultIcon);
+            }
         });
     }
 
@@ -127,24 +145,32 @@ $(function() {
         let menudiv = document.getElementById('main');
         if (menudiv.style.display === 'none') {
             menudiv.style.display = 'block';
-            // menudiv.style.width = '340px';
-            // document.getElementById('map').style.left = '362px';
         } else {
             menudiv.style.display = 'none';
-            // menudiv.style.width = '0px';
-            // document.getElementById('map').style.left = '0px';
         }
+        
         google.maps.event.trigger(map,'resize');
     }
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {     
+        console.log('marker: ', marker);
+        
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
+            if (infowindow.marker) {
+                infowindow.marker.setIcon(globalDefaultIcon);
+            }
+            
+            marker.setIcon(globalSelectedIcon);
+            
             let self = this;
             let petPic;
 
+            
             let coordinates = marker.getPosition();
+            
+            
             map.panTo(coordinates);
 
             //set base url for zipcode referenced petfinder API call
@@ -152,8 +178,8 @@ $(function() {
             urlPet += marker.postal;
 
             //set info window html/css
-            let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
-            content += '</h4><div class="spinner"><img src=""></div></div></div>';
+            let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><p class="info-titles">' + marker.title;
+            content += '</p><div class="spinner"><img src=""></div></div></div>';
             // content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
             infowindow.setContent(content);
 
@@ -184,12 +210,19 @@ $(function() {
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
+                marker.setIcon(globalDefaultIcon);
                 infowindow.marker = null;
+                
+                mapToBounds();
             });
             // Open the infowindow on the correct marker.
             infowindow.open(map, marker);
         }
         
+    }
+
+    function mapToBounds () {
+        map.fitBounds(globalBounds);
     }
 
     // This function will loop through the listings and hide them all.
@@ -221,9 +254,9 @@ $(function() {
         let petLink = 'https://www.petfinder.com/petdetail/' + petID;
         let htmlContent = '<p class="pet-name">' + petName + '</p>';
         htmlContent += '<a href="' + petLink + '" class="pet-link" target="_blank">More Info!</a>';
-        htmlContent += '<img class="aligner-vert pet-pic" src="';
-        htmlContent += petPic;
-        htmlContent += ' "height="200" width="200">';
+        htmlContent += '<img class="aligner-vert" src="';
+        htmlContent += petPic + '" style="max-height: 200px; max-width: 200px;"/>';
+        
         $('.pet-cont').append(htmlContent);
     }
 
@@ -336,13 +369,14 @@ $(function() {
             
             markers.forEach(function(mark) {
                 if(mark.title == value.title) {
-                    populateInfoWindow(mark, globalInfWin);
+                    populateInfoWindow(mark, globalInfWin, globalDefaultIcon);
                 }
             });
         },
 
         //reset function to clear search/filter field
         showAll: function () {
+            mapToBounds();
             AppViewModel.loc('');
         },
     };

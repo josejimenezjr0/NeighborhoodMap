@@ -9,23 +9,24 @@
 	</head>
 	<body>
 		<div class="container">
-			<div id="main" class="col-md-3 options-box">
+			<div id="main" class="col-md-2 options-box">
 				<h1>Neighborhood Map</h1>
 				<div>
 					<hr>
 					<!-- knockoutjs binding for the filter -->
 					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
 					<!-- knockoutjs binding for show all button -->
-					<input data-bind="click: showAll" type="button" value="Show All">
+					<input class="filter-button" data-bind="click: showAll" type="button" value="Show All">
 					<!-- looping through with knockoutjs to display dynamic list of locations -->
-					<ul class="folders" data-bind="foreach: filteredLocs">
+					<hr>
+					<ul class="locations" data-bind="foreach: filteredLocs">
 						<!-- knockoutjs binding for the population of info window if name list is clicked instead of marker -->
-						<li data-bind="text: title, click: $root.showInfo"></li> 
+						<li class="titles" data-bind="text: title, click: $root.showInfo"></li> 
 					</ul>
 				</div>
 			</div>
 			<!-- Google API required div -->
-			<div class="col-md-9 map-cont">
+			<div class="col-md-10 map-cont">
 				<div id="map"></div>
 			</div>
         </div>

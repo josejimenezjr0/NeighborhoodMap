@@ -1,14 +1,23 @@
 h1 {
 color: #525454;
 font-size: 22px;
-margin: 0 0 10px 0;
+margin: 0 0 0 0;
 text-align: center;
+}
+
+h2, h3, h4 {
+    text-align: center;
+    padding: 0 0 0 0;
+}
+
+h4 {
+    font-size: 20px;
 }
 
 hr {
 background: #D0D7D9;
-height: 1px;
-margin: 20px 0 20px 0;
+height: 2px;
+margin: 5px 0 10px 0;
 border: none;
 }
 
@@ -22,13 +31,27 @@ border: none;
 
 .options-box {
 background: #fff;
-border: 1px solid #999;
-border-radius: 3px;
+/* border: 1px solid #999;
+border-radius: 3px; */
 height: 100%;
-line-height: 35px;
+/* line-height: 35px; */
 padding: 10px 10px 30px 10px;
 text-align: left;
 /* width: 340px; */
+}
+
+.filter-button {
+    margin-bottom: 10px;
+}
+
+.locations {
+    list-style-type: none;
+    margin: 0;
+    padding: 0 0 0 0;
+}
+
+.titles {
+    padding-bottom: 10px;
 }
 
 .text {
@@ -36,8 +59,14 @@ font-size: 12px;
 }
 
 .info {
-    width: 275px;
-    height: 325px;
+    width: 225px;
+    height: 300px;
+}
+
+.info-titles {
+    font-size: 15px;
+    padding: 0 0 10px 0;
+    margin: 0 0 0 0;
 }
 
 .aligner {
@@ -56,10 +85,10 @@ font-size: 12px;
     /* flex-wrap: wrap; */
 }
 
-.pet-pic {
-    max-width: 100%;
-    max-height: 100%;
-}
+/* img.pet-pic {
+    max-height: 200px;
+    max-width: 200px;
+} */
 
 .pet-name {
     font-size: 20px;
