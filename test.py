@@ -8,7 +8,7 @@ def homePage():
     Display landing page for site
     """
 
-    return render_template('test.html')
+    return render_template('main.html')
 
 
 @app.route('/maps/')

@@ -112,7 +112,7 @@ $(function() {
         controlText.style.lineHeight = '38px';
         controlText.style.paddingLeft = '5px';
         controlText.style.paddingRight = '5px';
-        controlText.innerHTML = '<img src="./static/hamburger.png">';
+        controlText.innerHTML = '<img src="/static/hamburger.png">';
         controlUI.appendChild(controlText);
 
         // Setup the click event listeners: simply set the map to Chicago.
@@ -127,12 +127,12 @@ $(function() {
         let menudiv = document.getElementById('main');
         if (menudiv.style.display === 'none') {
             menudiv.style.display = 'block';
-            menudiv.style.width = '340px';
-            document.getElementById('map').style.left = '362px';
+            // menudiv.style.width = '340px';
+            // document.getElementById('map').style.left = '362px';
         } else {
             menudiv.style.display = 'none';
-            menudiv.style.width = '0px';
-            document.getElementById('map').style.left = '0px';
+            // menudiv.style.width = '0px';
+            // document.getElementById('map').style.left = '0px';
         }
         google.maps.event.trigger(map,'resize');
     }
@@ -153,7 +153,8 @@ $(function() {
 
             //set info window html/css
             let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><h4>' + marker.title;
-            content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
+            content += '</h4><div class="spinner"><img src=""></div></div></div>';
+            // content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
             infowindow.setContent(content);
 
             //get petInfo through promise chains incase anything doesn't come through
@@ -170,10 +171,14 @@ $(function() {
                 setPetInfo(self, data, marker);
             }, function(error) {
                 //diplay an error if all the redundant calls fail
-                let errorContent = '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>';
-                $('.pet-cont').append(errorContent);
+                content += '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>';
+                infowindow.setContent(content);
             }).then(function() {
+                
+                //// I couldn't find an equivalent infowindow.removeContent option so I defaulted to jquery
                 $('.spinner').remove();
+                ////********//////////
+
             });
 
             infowindow.marker = marker;

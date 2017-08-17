@@ -1,20 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">   
-		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">   
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
         
 	</head>
 	<body>
 		<div class="container">
-			{% block content %}
-			{% endblock %}
+			<div id="main" class="col-md-3 options-box">
+				<h1>Neighborhood Map</h1>
+				<div>
+					<hr>
+					<!-- knockoutjs binding for the filter -->
+					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
+					<!-- knockoutjs binding for show all button -->
+					<input data-bind="click: showAll" type="button" value="Show All">
+					<!-- looping through with knockoutjs to display dynamic list of locations -->
+					<ul class="folders" data-bind="foreach: filteredLocs">
+						<!-- knockoutjs binding for the population of info window if name list is clicked instead of marker -->
+						<li data-bind="text: title, click: $root.showInfo"></li> 
+					</ul>
+				</div>
+			</div>
+			<!-- Google API required div -->
+			<div class="col-md-9 map-cont">
+				<div id="map"></div>
+			</div>
         </div>
 		
-		
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
-		<script type=text/javascript src="{{url_for('static', filename='main.js') }}"></script>
+		<script type="text/javascript" src="{{url_for('static', filename='main.js') }}"></script>
 		<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap"></script>
 	</body>
 </html>
