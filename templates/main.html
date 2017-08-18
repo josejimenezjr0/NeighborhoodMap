@@ -11,14 +11,13 @@
 		<div class="container">
 			<div id="main" class="col-md-2 options-box">
 				<h1>Neighborhood Map</h1>
-				<div>
+				<div class="text-center">
 					<hr>
 					<!-- knockoutjs binding for the filter -->
-					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
+					<input class="filter" data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/>
 					<!-- knockoutjs binding for show all button -->
 					<input class="filter-button" data-bind="click: showAll" type="button" value="Show All">
 					<!-- looping through with knockoutjs to display dynamic list of locations -->
-					<hr>
 					<ul class="locations" data-bind="foreach: filteredLocs">
 						<!-- knockoutjs binding for the population of info window if name list is clicked instead of marker -->
 						<li class="titles" data-bind="text: title, click: $root.showInfo"></li> 

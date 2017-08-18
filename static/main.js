@@ -107,6 +107,10 @@ $(function() {
         });
     }
 
+    function setDefaultIcon() {
+
+    }
+
     //the function that creates the look for the button
     //modified code from Google maps API site
     function CenterControl(controlDiv, map) {
@@ -154,7 +158,7 @@ $(function() {
 
     // This function populates the infowindow when the marker is clicked.
     function populateInfoWindow(marker, infowindow) {     
-        console.log('marker: ', marker);
+        
         
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
@@ -283,8 +287,6 @@ $(function() {
     function checkPhoto(response) {
         return new Promise(function(resolve, reject) {
             if (response.petfinder.pet.media.photos.photo[2].$t) {
-                
-                
                 resolve(response);
             }
             else {
@@ -381,6 +383,13 @@ $(function() {
         showAll: function () {
             mapToBounds();
             AppViewModel.loc('');
+            markers.forEach(function(mark) {
+                if (globalInfWin.marker == mark) {
+                    globalInfWin.marker.setIcon(globalDefaultIcon);
+                    globalInfWin.marker = null;
+                }
+            });
+            globalInfWin.close();
         },
     };
 
