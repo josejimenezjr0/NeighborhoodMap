@@ -33,7 +33,7 @@ $(function() {
         // mouses over the marker.
         var highlightedIcon = makeMarkerIcon('FFFF24');
 
-        var selectedIcon = makeMarkerIcon('FF0000');
+        var selectedIcon = makeMarkerIcon('B34D4D');
         globalSelectedIcon  = selectedIcon;
 
         // The following group uses the location array to create an array of markers on initialize.
@@ -179,7 +179,7 @@ $(function() {
 
             //set info window html/css
             let content = '<div class="info aligner"><div class="pet-cont aligner-vert"><p class="info-titles">' + marker.title;
-            content += '</p><div class="spinner"><img src=""></div></div></div>';
+            content += '</p><div class="spinner"><img src="/static/spinner.gif"></div></div></div>';
             // content += '</h4><div class="spinner"><img src="./static/spinner.gif"></div></div></div>';
             infowindow.setContent(content);
 
@@ -197,8 +197,11 @@ $(function() {
                 setPetInfo(self, data, marker);
             }, function(error) {
                 //diplay an error if all the redundant calls fail
-                content += '<div class="error text-center"><p>Sorry! Could not load pet info. Close window and try again or select another marker</p>';
-                infowindow.setContent(content);
+                let errorContent = infowindow.getContent();
+                errorContent = errorContent.slice(0,-12)
+                infowindow.setContent('');
+                errorContent += '<hr><p class="error text-center">Sorry!<br/>Could not load pet info.<br/>Close window and try again or select another marker</p></div></div>';
+                infowindow.setContent(errorContent);
             }).then(function() {
                 
                 //// I couldn't find an equivalent infowindow.removeContent option so I defaulted to jquery
@@ -252,10 +255,10 @@ $(function() {
         let petPic = petInfo.petfinder.pet.media.photos.photo[2].$t;
         let petID = petInfo.petfinder.pet.id.$t;
         let petLink = 'https://www.petfinder.com/petdetail/' + petID;
-        let htmlContent = '<p class="pet-name">' + petName + '</p>';
-        htmlContent += '<a href="' + petLink + '" class="pet-link" target="_blank">More Info!</a>';
-        htmlContent += '<img class="aligner-vert" src="';
-        htmlContent += petPic + '" style="max-height: 200px; max-width: 200px;"/>';
+        let htmlContent = '<a class="pet-link" href="' + petLink + '" target="_blank">' + petName + '</a>';
+        htmlContent += '<a href="https://www.petfinder.com" class="petfinder" target="_blank">Powered by Petfinder</a>';
+        htmlContent += '<a href="' + petLink + '" target="_blank"><img class="aligner-vert" src="';
+        htmlContent += petPic + '" style="max-height: 200px; max-width: 200px;"/></a>';
         
         $('.pet-cont').append(htmlContent);
     }
