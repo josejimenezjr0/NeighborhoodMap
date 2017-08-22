@@ -1,6 +1,6 @@
 /* jshint browser: true */
 
-$(function() {
+// $(function() {
     /////   MODIFIED CODE FROM UDACITY COURSE   /////
     var map;
     var markers = [];
@@ -10,7 +10,7 @@ $(function() {
     var globalSelectedIcon;
     let postal; //Used for zipcode calls
 
-    window.initMap = function () {
+    function initMap() {
         
         // Constructor creates a new map - only center and zoom are required.
         map = new google.maps.Map(document.getElementById('map'), {
@@ -83,7 +83,7 @@ $(function() {
         
         setPostal(markers);
 
-    };
+    }
 
     function clickHandler(marker, infWin, selectedIcon) {
         marker.addListener('click', function() {
@@ -105,10 +105,6 @@ $(function() {
                 this.setIcon(defaultIcon);
             }
         });
-    }
-
-    function setDefaultIcon() {
-
     }
 
     //the function that creates the look for the button
@@ -157,9 +153,7 @@ $(function() {
     }
 
     // This function populates the infowindow when the marker is clicked.
-    function populateInfoWindow(marker, infowindow) {     
-        
-        
+    function populateInfoWindow(marker, infowindow) {       
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
             if (infowindow.marker) {
@@ -202,7 +196,7 @@ $(function() {
             }, function(error) {
                 //diplay an error if all the redundant calls fail
                 let errorContent = infowindow.getContent();
-                errorContent = errorContent.slice(0,-12)
+                errorContent = errorContent.slice(0,-12);
                 infowindow.setContent('');
                 errorContent += '<hr><p class="error text-center">Sorry!<br/>Could not load pet info.<br/>Close window and try again or select another marker</p></div></div>';
                 infowindow.setContent(errorContent);
@@ -325,6 +319,11 @@ $(function() {
         });
     }
 
+    //handle map errors
+    function mapError() {
+        $('#map').append('<div class="map-error text-center">:(</br> Oh no!</br> Google Maps could not load. </br>Please try again.</div>');
+    }
+
     //static loaction info
     const gmapsLocs = [
         {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}, skipFilter: false},
@@ -336,7 +335,7 @@ $(function() {
         ];
 
     //knockout view model
-    var AppViewModel = {
+    var viewModel = {
         //pass in the static content to an observable
         filteredLocs: ko.observableArray(gmapsLocs),
         
@@ -348,7 +347,7 @@ $(function() {
             let words;
             let filteredResult = [];
             let found = false;
-            let filter = AppViewModel.loc().toLowerCase();
+            let filter = viewModel.loc().toLowerCase();
             hideMarkers();
             gmapsLocs.forEach(function(mapLoc, index) {
                 found = false;
@@ -366,23 +365,22 @@ $(function() {
                     }
                 }); 
             });
-            AppViewModel.filteredLocs(filteredResult);
+            viewModel.filteredLocs(filteredResult);
         },
 
         //take in the global info window and run the function to populate
-        showInfo: function(value, infWin) {
-            
+        showInfo: function(item, event, infWin) {
             markers.forEach(function(mark) {
-                if(mark.title == value.title) {
-                    populateInfoWindow(mark, globalInfWin, globalDefaultIcon);
+                if(mark.title == item.title) {
+                    populateInfoWindow(mark, globalInfWin, globalDefaultIcon);     
                 }
             });
         },
 
         //reset function to clear search/filter field
-        showAll: function () {
+        showAll: function() {
             mapToBounds();
-            AppViewModel.loc('');
+            viewModel.loc('');
             markers.forEach(function(mark) {
                 if (globalInfWin.marker == mark) {
                     globalInfWin.marker.setIcon(globalDefaultIcon);
@@ -397,8 +395,8 @@ $(function() {
     var locations = gmapsLocs;
 
     //bind the filter function to the loc observable input field 
-    AppViewModel.loc.subscribe(AppViewModel.filtered);
+    viewModel.loc.subscribe(viewModel.filtered);
 
     //start up KnockoutJS
-    ko.applyBindings(AppViewModel);
-});
+    ko.applyBindings(viewModel);
+// });

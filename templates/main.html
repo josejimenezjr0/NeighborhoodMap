@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">   
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
         
@@ -28,10 +28,10 @@
 			<div class="col-md-10 map-cont">
 				<div id="map"></div>
 			</div>
-        </div>
+		</div>
 		
+		<script defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap()" onerror="mapError()"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
 		<script type="text/javascript" src="{{url_for('static', filename='main.js') }}"></script>
-		<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap"></script>
 	</body>
 </html>
