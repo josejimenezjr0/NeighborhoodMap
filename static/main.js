@@ -85,6 +85,8 @@
 
     }
 
+    // initMap();
+
     function clickHandler(marker, infWin, selectedIcon) {
         marker.addListener('click', function() {
             populateInfoWindow(this, infWin);
