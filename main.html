@@ -2,34 +2,36 @@
 <html lang="en">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">   
 		<link rel="stylesheet" type="text/css" href="./static/styles.css">
         
 	</head>
 	<body>
 		<div class="container">
-			<div id="main" class="options-box">
+			<div id="main" class="col-md-2 options-box">
 				<h1>Neighborhood Map</h1>
-				<div>
+				<div class="text-center">
 					<hr>
 					<!-- knockoutjs binding for the filter -->
-					<p><input data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/></p>
+					<input class="filter" data-bind="value: loc, valueUpdate: 'afterkeydown'" placeholder="enter location"/>
 					<!-- knockoutjs binding for show all button -->
-					<input data-bind="click: showAll" type="button" value="Show All">
+					<input class="filter-button" data-bind="click: showAll" type="button" value="Show All">
 					<!-- looping through with knockoutjs to display dynamic list of locations -->
-					<ul class="folders" data-bind="foreach: filteredLocs">
+					<ul class="locations" data-bind="foreach: filteredLocs">
 						<!-- knockoutjs binding for the population of info window if name list is clicked instead of marker -->
-						<li data-bind="text: title, click: $root.showInfo"></li> 
+						<li class="titles" data-bind="text: title, click: $root.showInfo"></li> 
 					</ul>
 				</div>
 			</div>
 			<!-- Google API required div -->
-			<div id="map"></div>
-        </div>
+			<div class="col-md-10 map-cont">
+				<div id="map"></div>
+			</div>
+		</div>
 		
+		<script defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap" onerror="mapError()"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
 		<script type="text/javascript" src="./static/main.js"></script>
-		<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCWrMU-EIkq8zrp9oiAf0fnlRPJFoT11f8&v=3&callback=initMap"></script>
 	</body>
 </html>
